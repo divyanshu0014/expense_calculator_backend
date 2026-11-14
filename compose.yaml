@@ -1,0 +1,29 @@
+services:
+  expense-calculator-backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://expense_calculator-db:3306/expense_calculator
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: root
+    depends_on:
+      - expense_calculator-db
+
+
+
+  expense_calculator-db:
+    image: mysql:8.0
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: expense_calculator
+    ports:
+      - "3308:3306"
+    volumes:
+      - expense_calculator-data:/var/lib/mysql
+
+
+volumes:
+  expense_calculator-data:
