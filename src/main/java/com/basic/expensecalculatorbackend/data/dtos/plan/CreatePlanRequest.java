@@ -31,7 +31,7 @@ public class CreatePlanRequest {
     // Money currently in account to hold as reserve (optional)
 
     @NotNull(message = "Pay-Frequency should be mentioned")
-    private PayFrequencyEnum payFrequencyEnum;
+    private PayFrequencyEnum payFrequency;
 
     private BigDecimal openingCarryPaise = BigDecimal.ZERO;
 

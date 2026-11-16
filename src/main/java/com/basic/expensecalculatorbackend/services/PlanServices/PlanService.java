@@ -1,9 +1,6 @@
 package com.basic.expensecalculatorbackend.services.PlanServices;
 
-import com.basic.expensecalculatorbackend.data.dtos.plan.CreatePlanRequest;
-import com.basic.expensecalculatorbackend.data.dtos.plan.PlanResponse;
-import com.basic.expensecalculatorbackend.data.dtos.plan.PlanAllocationRequest;
-import com.basic.expensecalculatorbackend.data.dtos.plan.PlanAllocationResponse;
+import com.basic.expensecalculatorbackend.data.dtos.plan.*;
 import com.basic.expensecalculatorbackend.data.entities.CyclesEntity;
 import com.basic.expensecalculatorbackend.data.entities.PlanAllocationEntity;
 import com.basic.expensecalculatorbackend.data.entities.PlanEntity;
@@ -17,6 +14,7 @@ import com.basic.expensecalculatorbackend.repositories.PlanAllocationRepository;
 import com.basic.expensecalculatorbackend.repositories.PlanRepository;
 import com.basic.expensecalculatorbackend.repositories.UserProfileRepository;
 
+import jakarta.validation.Valid;
 import org.jspecify.annotations.NonNull;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -24,10 +22,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.YearMonth;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 @Service
 public class PlanService {
@@ -39,44 +34,13 @@ public class PlanService {
     private final PlanAllocationMapper planAllocationMapper;
     private final CycleRepository cycleRepository;
 
-    public PlanService(PlanRepository planRepository, UserProfileRepository userProfileRepository,
-            PlanAllocationRepository planAllocationRepository, PlanMapper planMapper,
-            PlanAllocationMapper planAllocationMapper, CycleRepository cycleRepository) {
+    public PlanService(PlanRepository planRepository, UserProfileRepository userProfileRepository, PlanAllocationRepository planAllocationRepository, PlanMapper planMapper, PlanAllocationMapper planAllocationMapper, CycleRepository cycleRepository) {
         this.planRepository = planRepository;
         this.planAllocationRepository = planAllocationRepository;
         this.planMapper = planMapper;
         this.planAllocationMapper = planAllocationMapper;
         this.userProfileRepository = userProfileRepository;
         this.cycleRepository = cycleRepository;
-    }
-
-    @Transactional
-    public PlanResponse createPlan(Long userId, CreatePlanRequest planRequest) {
-        UserProfileEntity userProfile = userProfileRepository.findById(userId)
-                .orElseThrow(() -> new IllegalArgumentException("User not Found"));
-
-        Plan plan = getPlan(planRequest);
-
-        PlanEntity savedPlan = planRepository.save(planMapper.toPlanEntity(plan, userProfile, null));
-        List<PlanAllocationResponse> allocations = getSavedPlannedAllocation(savedPlan,
-                planRequest.getAllocations());
-
-        CyclesEntity initialCycle = createAndSaveInitialCycle(savedPlan, planRequest.getOpeningCarryPaise(),
-                planRequest.getLabel());
-
-        return PlanResponse.builder()
-                .id(savedPlan.getId())
-                .userId(userId)
-                .currency(planRequest.getCurrency())
-                .salaryDay(planRequest.getSalaryDay())
-                .takeHomePaise(planRequest.getTakeHomePaise())
-                .allocations(allocations)
-                .currencyCycleId(initialCycle.getId())
-                .startDate(initialCycle.getStartDate())
-                .endDate(initialCycle.getEndDate())
-                .spendablePoolPaise(savedPlan.getTakeHomePaise().subtract(getAllocationAmount(allocations)))
-                .isActive(plan.getIsActive())
-                .build();
     }
 
     private static @NonNull Plan getPlan(CreatePlanRequest planRequest) {
@@ -89,15 +53,27 @@ public class PlanService {
         plan.setReleasedCarryPaise(planRequest.getReleasedCarryPaise());
         plan.setSalaryDay(planRequest.getSalaryDay());
         plan.setTakeHomePaise(planRequest.getTakeHomePaise());
-        plan.setPayFrequency(planRequest.getPayFrequencyEnum());
+        plan.setPayFrequency(planRequest.getPayFrequency());
         plan.setIsActive(true);
         return plan;
     }
 
+    @Transactional
+    public PlanResponse createPlan(Long userId, CreatePlanRequest planRequest) {
+        UserProfileEntity userProfile = userProfileRepository.findById(userId).orElseThrow(() -> new IllegalArgumentException("User not Found"));
+
+        Plan plan = getPlan(planRequest);
+
+        PlanEntity savedPlan = planRepository.save(planMapper.toPlanEntity(plan, userProfile, null));
+        List<PlanAllocationResponse> allocations = getSavedPlannedAllocation(savedPlan, planRequest.getAllocations());
+
+        CyclesEntity initialCycle = createAndSaveInitialCycle(savedPlan, planRequest.getOpeningCarryPaise(), planRequest.getLabel());
+
+        return PlanResponse.builder().id(savedPlan.getId()).userId(userId).currency(planRequest.getCurrency()).salaryDay(planRequest.getSalaryDay()).takeHomePaise(planRequest.getTakeHomePaise()).allocations(allocations).currentCycleId(initialCycle.getId()).startDate(initialCycle.getStartDate()).endDate(initialCycle.getEndDate()).spendablePoolPaise(savedPlan.getTakeHomePaise().subtract(getAllocationAmount(allocations))).isActive(plan.getIsActive()).build();
+    }
+
     private BigDecimal getAllocationAmount(List<PlanAllocationResponse> allocations) {
-        return allocations.stream()
-                .map(PlanAllocationResponse::getAmountPaise)
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
+        return allocations.stream().map(PlanAllocationResponse::getAmountPaise).reduce(BigDecimal.ZERO, BigDecimal::add);
     }
 
     private CyclesEntity createAndSaveInitialCycle(PlanEntity savedPlan, BigDecimal openingCarryPaise, String label) {
@@ -112,7 +88,7 @@ public class PlanService {
         initialCycle.setLabel(label);
 
         LocalDate today = LocalDate.now();
-        int  salaryDay = savedPlan.getSalaryDay().intValue();
+        int salaryDay = savedPlan.getSalaryDay().intValue();
 
         LocalDate cycleStart;
         LocalDate cycleEnd;
@@ -122,7 +98,7 @@ public class PlanService {
             LocalDate nextMonth = today.plusMonths(1);
             cycleEnd = clampDate(nextMonth.getYear(), nextMonth.getMonthValue(), salaryDay);
         } else {
-            LocalDate prevMonth =  today.minusMonths(1);
+            LocalDate prevMonth = today.minusMonths(1);
             cycleStart = clampDate(prevMonth.getYear(), prevMonth.getMonthValue(), salaryDay);
             cycleEnd = clampDate(today.getYear(), today.getMonthValue(), salaryDay);
         }
@@ -140,9 +116,8 @@ public class PlanService {
     }
 
 
-    private List<PlanAllocationResponse> getSavedPlannedAllocation(PlanEntity plan,
-            List<PlanAllocationRequest> allocations) {
-        if(allocations == null || allocations.isEmpty()) {
+    private List<PlanAllocationResponse> getSavedPlannedAllocation(PlanEntity plan, List<PlanAllocationRequest> allocations) {
+        if (allocations == null || allocations.isEmpty()) {
             return Collections.emptyList();
         }
 
@@ -160,40 +135,116 @@ public class PlanService {
         }
 
         for (PlanAllocationResponse planAllocationResponse : savedAllocations) {
-            planAllocationRepository.save(planAllocationMapper.toEntity(planAllocationResponse, plan , null));
+            planAllocationRepository.save(planAllocationMapper.toEntity(planAllocationResponse, plan, null));
         }
 
         return savedAllocations;
     }
 
     public PlanResponse getPlan(Long userId) {
-        PlanEntity planEntity = planRepository.findByProfileIdAndIsActiveTrue(userId)
-                .orElseThrow(() -> new IllegalArgumentException("User doesn't have active plan"));
+        PlanEntity planEntity = planRepository.findByProfileIdAndIsActiveTrue(userId).orElseThrow(() -> new IllegalArgumentException("User doesn't have active plan"));
 
-        List<PlanAllocationResponse> allocations = planAllocationMapper.toResponse(planAllocationRepository.findByPlanId(planEntity.getId()));
-        CyclesEntity cyclesEntity = cycleRepository.findFirstByPlanIdOrderByStartDateDesc(planEntity.getId())
-                .orElseThrow(() -> new IllegalArgumentException("No cycle found for the given plan"));
+        List<PlanAllocationResponse> allocations = planAllocationMapper.toResponse(planAllocationRepository.findAllocationsByPlanId(planEntity.getId()));
+        CyclesEntity cyclesEntity = cycleRepository.findFirstByPlanIdOrderByStartDateDesc(planEntity.getId()).orElseThrow(() -> new IllegalArgumentException("No cycle found for the given plan"));
 
         return PlanResponse.builder()
                 //Plan Details
-                .id(planEntity.getId())
-                .userId(userId)
-                .currency(planEntity.getCurrency())
-                .salaryDay(planEntity.getSalaryDay())
-                .takeHomePaise(planEntity.getTakeHomePaise())
-                .payFrequency(planEntity.getPayFrequencyEnum())
-                .theme(planEntity.getTheme())
-                .motion(planEntity.getMotion())
-                .tourSeen(planEntity.getTourSeen())
-                .isActive(planEntity.getActive())
+                .id(planEntity.getId()).userId(userId).currency(planEntity.getCurrency()).salaryDay(planEntity.getSalaryDay()).takeHomePaise(planEntity.getTakeHomePaise()).payFrequency(planEntity.getPayFrequencyEnum()).theme(planEntity.getTheme()).motion(planEntity.getMotion()).tourSeen(planEntity.getTourSeen()).isActive(planEntity.getActive())
                 //Allocations
                 .allocations(allocations)
                 //Current Cycle
-                .currencyCycleId(cyclesEntity.getId())
-                .startDate(cyclesEntity.getStartDate())
-                .endDate(cyclesEntity.getEndDate())
-                .spendablePoolPaise(planEntity.getTakeHomePaise().subtract(getAllocationAmount(allocations)))
-                .build();
+                .currentCycleId(cyclesEntity.getId()).startDate(cyclesEntity.getStartDate()).endDate(cyclesEntity.getEndDate()).spendablePoolPaise(planEntity.getTakeHomePaise().subtract(getAllocationAmount(allocations))).build();
 
     }
+
+    @Transactional
+    public PlanResponse updatePlan(Long planId, @Valid UpdatePlanRequest request) {
+        //PlaceHolder for Adding Plan Logic
+        PlanEntity plan = planRepository.findById(planId).orElseThrow(() -> new IllegalArgumentException("Plan not found"));
+
+        //Update Plan
+        plan.setCurrency(request.getCurrency() != null ? request.getCurrency() : plan.getCurrency());
+        plan.setSalaryDay(request.getSalaryDay() != null ? request.getSalaryDay() : plan.getSalaryDay());
+        plan.setTakeHomePaise(request.getTakeHomePaise() != null ? request.getTakeHomePaise() : plan.getTakeHomePaise());
+        plan.setPayFrequencyEnum(request.getPayFrequency() != null ? request.getPayFrequency() : plan.getPayFrequencyEnum());
+        plan.setTheme(request.getTheme() != null ? request.getTheme() : plan.getTheme());
+        plan.setMotion(request.getMotion() != null ? request.getMotion() : plan.getMotion());
+        plan.setTourSeen(request.getTourSeen() != null ? request.getTourSeen() : plan.getTourSeen());
+
+        if (Objects.isNull(plan.getReleasedCarryPaise())) {
+            plan.setReleasedCarryPaise(request.getReleasedCarryPaise());
+        }
+
+        PlanEntity updatedPlan = planRepository.save(plan);
+
+        cycleRepository.findFirstByPlanIdOrderByStartDateDesc(updatedPlan.getId()).ifPresent(currentCycle -> {
+            if (Objects.nonNull(request.getTakeHomePaise())) {
+                currentCycle.setTakeHomePaise(request.getTakeHomePaise());
+            }
+            if (Objects.nonNull(currentCycle.getReleased_carry_paise())) {
+                currentCycle.setReleased_carry_paise(currentCycle.getReleased_carry_paise());
+            }
+
+            cycleRepository.save(currentCycle);
+        });
+        return getPlan(updatedPlan.getId());
+    }
+
+    @Transactional
+    public void deletePlan(Long userId, Long planId) {
+        PlanEntity plan = planRepository.findByProfileIdAndIsActiveTrue(userId)
+                .orElseThrow(() -> new IllegalArgumentException("User doesn't have active plan"));
+        if (!plan.getId().equals(planId)) {
+            throw new IllegalArgumentException("PlanId" + planId + " does not belong to user");
+        }
+
+        plan.setActive(false);
+        planRepository.save(plan);
+    }
+
+    //Allocations Methods
+    @Transactional
+    public PlanAllocationResponse addPlanAllocation(Long planId, PlanAllocationRequest request) {
+       PlanEntity plan = planRepository.findById(planId)
+               .orElseThrow(() -> new IllegalArgumentException("Plan with ID " + planId + " does not exist"));
+
+       PlanAllocationEntity newPlanAllocation = new PlanAllocationEntity();
+       newPlanAllocation.setPlan(plan);
+       newPlanAllocation.setName(request.getName());
+       newPlanAllocation.setAmountPaise(request.getAmountPaise());
+       newPlanAllocation.setKind(request.getKind());
+       newPlanAllocation.setDueDay(request.getDueDay());
+
+       PlanAllocationEntity savedAllocation = planAllocationRepository.save(newPlanAllocation);
+
+       return planAllocationMapper.toResponse(List.of(savedAllocation)).get(0);
+    }
+
+
+
+    @Transactional
+    public PlanAllocationResponse updatePlanAllocations(Long allocationId, @Valid PlanAllocationRequest updateAllocationsRequest) {
+        //PlaceHolder for Adding Plan Allocation Logic
+        PlanAllocationEntity existingAllocation = planAllocationRepository.findById(allocationId)
+                .orElseThrow(() -> new IllegalArgumentException("AllocationId" + allocationId + " does not exist"));
+
+        existingAllocation.setAmountPaise(updateAllocationsRequest.getAmountPaise());
+        existingAllocation.setName(updateAllocationsRequest.getName());
+        existingAllocation.setKind(updateAllocationsRequest.getKind());
+        existingAllocation.setDueDay(updateAllocationsRequest.getDueDay());
+
+        PlanAllocationEntity updated = planAllocationRepository.save(existingAllocation);
+        return planAllocationMapper.toResponse(updated);
+    }
+
+    @Transactional
+    public void deletePlanAllocations(Long allocationId) {
+        if(!planAllocationRepository.findById(allocationId).isPresent()) {
+            throw new IllegalArgumentException("Allocation with ID " + allocationId + " does not exist");
+        }
+
+        planAllocationRepository.deleteById(allocationId);
+    }
+
+
 }

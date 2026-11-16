@@ -12,13 +12,13 @@ import java.util.stream.Collectors;
 @Component
 public class PlanAllocationMapper {
 
-    public static List<PlanAllocationResponse> toResponse(List<PlanAllocationEntity> allocations) {
+    public List<PlanAllocationResponse> toResponse(List<PlanAllocationEntity> allocations) {
         return allocations.stream()
-                .map(PlanAllocationMapper::toResponse)
+                .map(this::toResponse)
                 .collect(Collectors.toList());
     }
 
-    private static PlanAllocationResponse toResponse(PlanAllocationEntity entity) {
+    public PlanAllocationResponse toResponse(PlanAllocationEntity entity) {
         return PlanAllocationResponse.builder()
                 .id(entity.getId())
                 .planId(Objects.nonNull(entity.getPlan()) ? entity.getPlan().getId() : null)

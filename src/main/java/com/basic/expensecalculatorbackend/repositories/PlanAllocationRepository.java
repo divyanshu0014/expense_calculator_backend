@@ -5,8 +5,10 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface PlanAllocationRepository extends JpaRepository<PlanAllocationEntity, Long> {
-    List<PlanAllocationEntity> findByPlanId(Long id);
+    List<PlanAllocationEntity> findAllocationsByPlanId(Long id);
+    Optional<PlanAllocationEntity> findById(Long id);
 }

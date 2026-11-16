@@ -1,6 +1,6 @@
 package com.basic.expensecalculatorbackend.data.model;
 
-import com.basic.expensecalculatorbackend.data.entities.PlanAllocationEntity;
+import com.basic.expensecalculatorbackend.data.dtos.plan.PlanAllocationResponse;
 import com.basic.expensecalculatorbackend.data.enums.CurrencyEnum;
 import com.basic.expensecalculatorbackend.data.enums.MotionEnum;
 import com.basic.expensecalculatorbackend.data.enums.PayFrequencyEnum;
@@ -26,6 +26,6 @@ public class Plan {
     private ThemeEnum theme;
     private MotionEnum motion;
     private Boolean tourSeen;
-    private List<PlanAllocationEntity> allocations;
+    private List<PlanAllocationResponse> allocations;
     private Boolean isActive;
 }

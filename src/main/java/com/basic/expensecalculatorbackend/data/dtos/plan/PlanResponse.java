@@ -36,7 +36,7 @@ public class PlanResponse {
     private List<PlanAllocationResponse> allocations;
 
     //Cycle
-    private Long currencyCycleId;
+    private Long currentCycleId;
     private LocalDate startDate;
     private LocalDate endDate;
     private BigDecimal spendablePoolPaise; // takehome-allocations
