@@ -22,6 +22,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.YearMonth;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 @Service
@@ -83,9 +84,8 @@ public class PlanService {
         initialCycle.setTakeHomePaise(savedPlan.getTakeHomePaise());
 
         initialCycle.setExtraCreditsPaise(BigDecimal.ZERO);
-        initialCycle.setOpening_carry_paise(Objects.nonNull(openingCarryPaise) ? openingCarryPaise : BigDecimal.ZERO);
-        initialCycle.setReleased_carry_paise(BigDecimal.ZERO);
-        initialCycle.setLabel(label);
+        initialCycle.setOpeningCarryPaise(Objects.nonNull(openingCarryPaise) ? openingCarryPaise : BigDecimal.ZERO);
+        initialCycle.setReleasedCarryPaise(BigDecimal.ZERO);
 
         LocalDate today = LocalDate.now();
         int salaryDay = savedPlan.getSalaryDay().intValue();
@@ -102,6 +102,13 @@ public class PlanService {
             cycleStart = clampDate(prevMonth.getYear(), prevMonth.getMonthValue(), salaryDay);
             cycleEnd = clampDate(today.getYear(), today.getMonthValue(), salaryDay);
         }
+
+        if (label == null || label.isBlank()) {
+            DateTimeFormatter fmt = DateTimeFormatter.ofPattern("dd MMM");
+            // e.g. "25 Oct – 24 Nov" (end date minus 1 day is the last day of the cycle)
+            label = cycleStart.format(fmt) + " – " + cycleEnd.minusDays(1).format(fmt);
+        }
+        initialCycle.setLabel(label);
 
         initialCycle.setStartDate(cycleStart);
         initialCycle.setEndDate(cycleEnd);
@@ -125,31 +132,30 @@ public class PlanService {
         List<PlanAllocationResponse> savedAllocations = new ArrayList<>();
 
         for (PlanAllocationRequest allocation : allocations) {
-            PlanAllocationResponse allocationResponse = new PlanAllocationResponse();
-            allocationResponse.setPlanId(plan.getId());
-            allocationResponse.setName(allocation.getName());
-            allocationResponse.setAmountPaise(allocation.getAmountPaise());
-            allocationResponse.setKind(allocation.getKind());
-            allocationResponse.setDueDay(allocation.getDueDay());
-            savedAllocations.add(allocationResponse);
+            PlanAllocationEntity entity = new PlanAllocationEntity();
+            entity.setPlan(plan);
+            entity.setName(allocation.getName());
+            entity.setAmountPaise(allocation.getAmountPaise());
+            entity.setKind(allocation.getKind());
+            entity.setDueDay(allocation.getDueDay());
+
+            PlanAllocationEntity saved = planAllocationRepository.save(entity);
+            savedAllocations.add(planAllocationMapper.toResponse(saved));
         }
 
-        for (PlanAllocationResponse planAllocationResponse : savedAllocations) {
-            planAllocationRepository.save(planAllocationMapper.toEntity(planAllocationResponse, plan, null));
-        }
 
         return savedAllocations;
     }
 
-    public PlanResponse getPlan(Long userId) {
-        PlanEntity planEntity = planRepository.findByProfileIdAndIsActiveTrue(userId).orElseThrow(() -> new IllegalArgumentException("User doesn't have active plan"));
+    public PlanResponse getPlan(Long planId) {
+        PlanEntity planEntity = planRepository.findById(planId).orElseThrow(() -> new IllegalArgumentException("Plan not found"));
 
         List<PlanAllocationResponse> allocations = planAllocationMapper.toResponse(planAllocationRepository.findAllocationsByPlanId(planEntity.getId()));
-        CyclesEntity cyclesEntity = cycleRepository.findFirstByPlanIdOrderByStartDateDesc(planEntity.getId()).orElseThrow(() -> new IllegalArgumentException("No cycle found for the given plan"));
+        CyclesEntity cyclesEntity = cycleRepository.findFirstByPlanIdAndIsActiveTrueOrderByStartDateDesc(planEntity.getId()).orElseThrow(() -> new IllegalArgumentException("No cycle found for the given plan"));
 
         return PlanResponse.builder()
                 //Plan Details
-                .id(planEntity.getId()).userId(userId).currency(planEntity.getCurrency()).salaryDay(planEntity.getSalaryDay()).takeHomePaise(planEntity.getTakeHomePaise()).payFrequency(planEntity.getPayFrequencyEnum()).theme(planEntity.getTheme()).motion(planEntity.getMotion()).tourSeen(planEntity.getTourSeen()).isActive(planEntity.getActive())
+                .id(planEntity.getId()).userId(planEntity.getProfile().getId()).currency(planEntity.getCurrency()).salaryDay(planEntity.getSalaryDay()).takeHomePaise(planEntity.getTakeHomePaise()).payFrequency(planEntity.getPayFrequencyEnum()).theme(planEntity.getTheme()).motion(planEntity.getMotion()).tourSeen(planEntity.getTourSeen()).isActive(planEntity.getActive())
                 //Allocations
                 .allocations(allocations)
                 //Current Cycle
@@ -177,12 +183,12 @@ public class PlanService {
 
         PlanEntity updatedPlan = planRepository.save(plan);
 
-        cycleRepository.findFirstByPlanIdOrderByStartDateDesc(updatedPlan.getId()).ifPresent(currentCycle -> {
+        cycleRepository.findFirstByPlanIdAndIsActiveTrueOrderByStartDateDesc(updatedPlan.getId()).ifPresent(currentCycle -> {
             if (Objects.nonNull(request.getTakeHomePaise())) {
                 currentCycle.setTakeHomePaise(request.getTakeHomePaise());
             }
-            if (Objects.nonNull(currentCycle.getReleased_carry_paise())) {
-                currentCycle.setReleased_carry_paise(currentCycle.getReleased_carry_paise());
+            if (Objects.nonNull(currentCycle.getReleasedCarryPaise())) {
+                currentCycle.setReleasedCarryPaise(currentCycle.getReleasedCarryPaise());
             }
 
             cycleRepository.save(currentCycle);
@@ -192,9 +198,9 @@ public class PlanService {
 
     @Transactional
     public void deletePlan(Long userId, Long planId) {
-        PlanEntity plan = planRepository.findByProfileIdAndIsActiveTrue(userId)
-                .orElseThrow(() -> new IllegalArgumentException("User doesn't have active plan"));
-        if (!plan.getId().equals(planId)) {
+        PlanEntity plan = planRepository.findById(planId)
+                .orElseThrow(() -> new IllegalArgumentException("Plan not found"));
+        if (!userId.equals(plan.getProfile().getId())) {
             throw new IllegalArgumentException("PlanId" + planId + " does not belong to user");
         }
 

@@ -50,7 +50,7 @@ public class PlanEntity {
     @Column(name = "tour_seen", nullable = false)
     private Boolean tourSeen;
 
-    @Column(name = "is_Active", nullable = false)
+    @Column(name = "is_active", nullable = false)
     private Boolean isActive;
 
     @OneToMany(mappedBy = "plan", cascade = CascadeType.ALL, orphanRemoval = true)
@@ -181,6 +181,10 @@ public class PlanEntity {
 
     public LocalDateTime getUpdatedAt() {
         return updatedAt;
+    }
+
+    public List<PlanAllocationEntity> getAllocations() {
+        return allocations;
     }
 
     public void setAllocations(List<PlanAllocationEntity> allocations) {

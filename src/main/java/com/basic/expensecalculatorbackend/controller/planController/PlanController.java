@@ -35,7 +35,7 @@ public class PlanController {
                 HttpStatus.OK);
     }
 
-    @PutMapping(value = "/api/v1/plans/{planId}")
+    @PutMapping(value = "/{planId}")
     public ResponseEntity<PlanResponse> UpdatePlan(@PathVariable Long planId,
                                                 @Valid @RequestBody UpdatePlanRequest updatePlanRequest) {
         return new ResponseEntity<>(
@@ -51,7 +51,7 @@ public class PlanController {
 
 
     //Allocations API's
-    @PostMapping(value = "/api/v1/{planId}/allocations")
+    @PostMapping(value = "{planId}/allocations")
     public ResponseEntity<PlanAllocationResponse> createPlanAllocation(@PathVariable Long planId,
                                                                        @Valid @RequestBody PlanAllocationRequest createAllocationRequest) {
         return new ResponseEntity<PlanAllocationResponse>(
@@ -59,7 +59,7 @@ public class PlanController {
                 HttpStatus.CREATED);
     }
 
-    @PutMapping(value = "/api/v1/allocations/{allocationId}")
+    @PutMapping(value = "/allocations/{allocationId}")
     public ResponseEntity<PlanAllocationResponse> updatePlanAllocations(@PathVariable Long allocationId,
                                                                         @Valid @RequestBody PlanAllocationRequest updateAllocationsRequest) {
         return new ResponseEntity<>(
@@ -67,7 +67,7 @@ public class PlanController {
                 HttpStatus.OK);
     }
 
-    @DeleteMapping(value = "/api/v1/allocations/{allocationId}")
+    @DeleteMapping(value = "/allocations/{allocationId}")
     public ResponseEntity<Void> deletePlanAllocations(@PathVariable Long allocationId) {
         planService.deletePlanAllocations(allocationId);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);

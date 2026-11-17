@@ -6,6 +6,7 @@ import jakarta.persistence.*;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Objects;
 
 @Entity
 @Table(name = "cycles")
@@ -32,10 +33,10 @@ public class CyclesEntity {
     private BigDecimal extraCreditsPaise;
 
     @Column(name = "opening_carry_paise", nullable = false)
-    private BigDecimal opening_carry_paise;
+    private BigDecimal openingCarryPaise;
 
     @Column(name = "released_carry_paise", nullable = false)
-    private BigDecimal released_carry_paise;
+    private BigDecimal releasedCarryPaise;
 
     @Column(name = "label")
     private String label;
@@ -47,23 +48,27 @@ public class CyclesEntity {
     @Column(name = "sheet_balance_Paise")
     private BigDecimal sheetBalancePaise;
 
+    @Column(name = "is_active", nullable = false)
+    private Boolean isActive = true;
+
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
 
 
     public CyclesEntity() {}
 
-    public CyclesEntity(PlanEntity plan, LocalDate startDate, LocalDate endDate, BigDecimal takeHomePaise, BigDecimal extraCreditsPaise, BigDecimal opening_carry_paise, BigDecimal released_carry_paise, String label, SourceEnum source, BigDecimal sheetBalancePaise, LocalDateTime createdAt) {
+    public CyclesEntity(PlanEntity plan, LocalDate startDate, LocalDate endDate, BigDecimal takeHomePaise, BigDecimal extraCreditsPaise, BigDecimal openingCarryPaise, BigDecimal releasedCarryPaise, String label, SourceEnum source, BigDecimal sheetBalancePaise,Boolean isActive, LocalDateTime createdAt) {
         this.plan = plan;
         this.startDate = startDate;
         this.endDate = endDate;
         this.takeHomePaise = takeHomePaise;
         this.extraCreditsPaise = extraCreditsPaise;
-        this.opening_carry_paise = opening_carry_paise;
-        this.released_carry_paise = released_carry_paise;
+        this.openingCarryPaise = openingCarryPaise;
+        this.releasedCarryPaise = releasedCarryPaise;
         this.label = label;
         this.source = source;
         this.sheetBalancePaise = sheetBalancePaise;
+        this.isActive = isActive!=null ? isActive : Boolean.FALSE;
         this.createdAt = createdAt;
     }
 
@@ -116,20 +121,20 @@ public class CyclesEntity {
         this.extraCreditsPaise = extraCreditsPaise;
     }
 
-    public BigDecimal getOpening_carry_paise() {
-        return opening_carry_paise;
+    public BigDecimal getOpeningCarryPaise() {
+        return openingCarryPaise;
     }
 
-    public void setOpening_carry_paise(BigDecimal opening_carry_paise) {
-        this.opening_carry_paise = opening_carry_paise;
+    public void setOpeningCarryPaise(BigDecimal openingCarryPaise) {
+        this.openingCarryPaise = openingCarryPaise;
     }
 
-    public BigDecimal getReleased_carry_paise() {
-        return released_carry_paise;
+    public BigDecimal getReleasedCarryPaise() {
+        return releasedCarryPaise;
     }
 
-    public void setReleased_carry_paise(BigDecimal released_carry_paise) {
-        this.released_carry_paise = released_carry_paise;
+    public void setReleasedCarryPaise(BigDecimal releasedCarryPaise) {
+        this.releasedCarryPaise = releasedCarryPaise;
     }
 
     public String getLabel() {
@@ -154,5 +159,13 @@ public class CyclesEntity {
 
     public void setSheetBalancePaise(BigDecimal sheetBalancePaise) {
         this.sheetBalancePaise = sheetBalancePaise;
+    }
+
+    public Boolean getActive() {
+        return isActive;
+    }
+
+    public void setActive(Boolean active) {
+        isActive = active;
     }
 }
