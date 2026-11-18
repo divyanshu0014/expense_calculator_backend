@@ -1,12 +1,12 @@
 package com.basic.expensecalculatorbackend.services.PlanServices;
 
-import com.basic.expensecalculatorbackend.data.dtos.plan.*;
-import com.basic.expensecalculatorbackend.data.entities.CyclesEntity;
-import com.basic.expensecalculatorbackend.data.entities.PlanAllocationEntity;
-import com.basic.expensecalculatorbackend.data.entities.PlanEntity;
-import com.basic.expensecalculatorbackend.data.entities.UserProfileEntity;
+import com.basic.expensecalculatorbackend.data.model.entities.CyclesEntity;
+import com.basic.expensecalculatorbackend.data.model.entities.PlanAllocationEntity;
+import com.basic.expensecalculatorbackend.data.model.entities.PlanEntity;
+import com.basic.expensecalculatorbackend.data.model.entities.UserProfileEntity;
 import com.basic.expensecalculatorbackend.data.enums.SourceEnum;
 import com.basic.expensecalculatorbackend.data.model.Plan;
+import com.basic.expensecalculatorbackend.data.model.dtos.plan.*;
 import com.basic.expensecalculatorbackend.mapper.PlanAllocationMapper;
 import com.basic.expensecalculatorbackend.mapper.PlanMapper;
 import com.basic.expensecalculatorbackend.repositories.CycleRepository;

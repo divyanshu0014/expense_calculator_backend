@@ -1,11 +1,12 @@
 package com.basic.expensecalculatorbackend.services.CyclesServices;
 
-import com.basic.expensecalculatorbackend.data.dtos.cycles.CycleHistoryResponse;
-import com.basic.expensecalculatorbackend.data.dtos.cycles.CycleResponse;
-import com.basic.expensecalculatorbackend.data.dtos.cycles.StartNewCyclesRequest;
-import com.basic.expensecalculatorbackend.data.entities.CyclesEntity;
-import com.basic.expensecalculatorbackend.data.entities.PlanAllocationEntity;
-import com.basic.expensecalculatorbackend.data.entities.PlanEntity;
+import com.basic.expensecalculatorbackend.data.model.dtos.cycles.CycleCreditRequest;
+import com.basic.expensecalculatorbackend.data.model.dtos.cycles.CycleHistoryResponse;
+import com.basic.expensecalculatorbackend.data.model.dtos.cycles.CycleResponse;
+import com.basic.expensecalculatorbackend.data.model.dtos.cycles.StartNewCyclesRequest;
+import com.basic.expensecalculatorbackend.data.model.entities.CyclesEntity;
+import com.basic.expensecalculatorbackend.data.model.entities.PlanAllocationEntity;
+import com.basic.expensecalculatorbackend.data.model.entities.PlanEntity;
 import com.basic.expensecalculatorbackend.data.enums.SourceEnum;
 import com.basic.expensecalculatorbackend.mapper.CycleMapper;
 import com.basic.expensecalculatorbackend.repositories.CycleRepository;
@@ -119,6 +120,29 @@ public class CyclesService {
         return planAllocationRepository.findAllocationsByPlanId(planId).stream()
                 .map(PlanAllocationEntity::getAmountPaise)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
+    }
+
+    @Transactional
+    public CycleResponse addCredits(Long cycleId, CycleCreditRequest cycleCreditRequest) {
+        CyclesEntity currentCycle = cyclesRepository.findById(cycleId)
+                .orElseThrow(() -> new IllegalArgumentException("Cycle ID " + cycleId + " does not exist"));
+        // 1. If request has extraCreditsPaise, set it as the new value
+        if (cycleCreditRequest.getExtraCreditsPaise() != null) {
+            currentCycle.setExtraCreditsPaise(cycleCreditRequest.getExtraCreditsPaise());
+        }
+        // 2. If request has releasedCarryPaise, validate against reserve and set it
+        if (cycleCreditRequest.getReleasedCarryPaise() != null) {
+            BigDecimal openingReserve = currentCycle.getOpeningCarryPaise() != null
+                    ? currentCycle.getOpeningCarryPaise()
+                    : BigDecimal.ZERO;
+            if (cycleCreditRequest.getReleasedCarryPaise().compareTo(openingReserve) > 0) {
+                throw new IllegalArgumentException(
+                        "Cannot release more than available carry-over reserve of " + openingReserve + " paise"
+                );
+            }
+            currentCycle.setReleasedCarryPaise(cycleCreditRequest.getReleasedCarryPaise());
+        }
+        return cycleMapper.entityToCycleResponse(cyclesRepository.save(currentCycle));
     }
 
 }

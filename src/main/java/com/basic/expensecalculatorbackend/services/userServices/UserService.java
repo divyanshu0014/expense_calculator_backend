@@ -1,9 +1,9 @@
 package com.basic.expensecalculatorbackend.services.userServices;
 
-import com.basic.expensecalculatorbackend.data.dtos.auth.AuthResponse;
-import com.basic.expensecalculatorbackend.data.dtos.profile.CreateUserRequest;
-import com.basic.expensecalculatorbackend.data.dtos.profile.UserResponse;
-import com.basic.expensecalculatorbackend.data.entities.UserProfileEntity;
+import com.basic.expensecalculatorbackend.data.model.dtos.auth.AuthResponse;
+import com.basic.expensecalculatorbackend.data.model.dtos.profile.CreateUserRequest;
+import com.basic.expensecalculatorbackend.data.model.dtos.profile.UserResponse;
+import com.basic.expensecalculatorbackend.data.model.entities.UserProfileEntity;
 import com.basic.expensecalculatorbackend.data.model.UserProfile;
 import com.basic.expensecalculatorbackend.mapper.UserProfileMapper;
 import com.basic.expensecalculatorbackend.repositories.UserProfileRepository;

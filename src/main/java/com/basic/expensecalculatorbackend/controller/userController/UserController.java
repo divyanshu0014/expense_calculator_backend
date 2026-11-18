@@ -1,8 +1,8 @@
 package com.basic.expensecalculatorbackend.controller.userController;
 
 
-import com.basic.expensecalculatorbackend.data.dtos.profile.CreateUserRequest;
-import com.basic.expensecalculatorbackend.data.dtos.profile.UserResponse;
+import com.basic.expensecalculatorbackend.data.model.dtos.profile.CreateUserRequest;
+import com.basic.expensecalculatorbackend.data.model.dtos.profile.UserResponse;
 import com.basic.expensecalculatorbackend.services.userServices.UserService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

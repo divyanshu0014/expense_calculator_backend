@@ -1,8 +1,8 @@
 package com.basic.expensecalculatorbackend.mapper;
 
-import com.basic.expensecalculatorbackend.data.dtos.plan.PlanAllocationResponse;
-import com.basic.expensecalculatorbackend.data.entities.PlanAllocationEntity;
-import com.basic.expensecalculatorbackend.data.entities.PlanEntity;
+import com.basic.expensecalculatorbackend.data.model.dtos.plan.PlanAllocationResponse;
+import com.basic.expensecalculatorbackend.data.model.entities.PlanAllocationEntity;
+import com.basic.expensecalculatorbackend.data.model.entities.PlanEntity;
 import org.springframework.stereotype.Component;
 
 import java.util.List;

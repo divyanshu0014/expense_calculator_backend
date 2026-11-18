@@ -1,6 +1,6 @@
 package com.basic.expensecalculatorbackend.data.model;
 
-import com.basic.expensecalculatorbackend.data.dtos.plan.PlanAllocationResponse;
+import com.basic.expensecalculatorbackend.data.model.dtos.plan.PlanAllocationResponse;
 import com.basic.expensecalculatorbackend.data.enums.CurrencyEnum;
 import com.basic.expensecalculatorbackend.data.enums.MotionEnum;
 import com.basic.expensecalculatorbackend.data.enums.PayFrequencyEnum;

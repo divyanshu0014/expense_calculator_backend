@@ -1,6 +1,6 @@
 package com.basic.expensecalculatorbackend.controller.planController;
 
-import com.basic.expensecalculatorbackend.data.dtos.plan.*;
+import com.basic.expensecalculatorbackend.data.model.dtos.plan.*;
 import com.basic.expensecalculatorbackend.services.PlanServices.PlanService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;

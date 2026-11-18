@@ -1,4 +1,4 @@
-package com.basic.expensecalculatorbackend.data.dtos.auth;
+package com.basic.expensecalculatorbackend.data.model.dtos.auth;
 
 import jakarta.validation.constraints.NotBlank;
 import lombok.*;

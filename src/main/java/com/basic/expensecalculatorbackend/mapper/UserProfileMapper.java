@@ -1,7 +1,7 @@
 package com.basic.expensecalculatorbackend.mapper;
 
-import com.basic.expensecalculatorbackend.data.dtos.profile.UserResponse;
-import com.basic.expensecalculatorbackend.data.entities.UserProfileEntity;
+import com.basic.expensecalculatorbackend.data.model.dtos.profile.UserResponse;
+import com.basic.expensecalculatorbackend.data.model.entities.UserProfileEntity;
 import com.basic.expensecalculatorbackend.data.model.UserProfile;
 import org.springframework.stereotype.Component;
 

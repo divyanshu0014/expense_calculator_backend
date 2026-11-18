@@ -1,4 +1,4 @@
-package com.basic.expensecalculatorbackend.data.entities;
+package com.basic.expensecalculatorbackend.data.model.entities;
 
 import com.basic.expensecalculatorbackend.data.enums.SourceEnum;
 import jakarta.persistence.*;
@@ -6,7 +6,6 @@ import jakarta.persistence.*;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.Objects;
 
 @Entity
 @Table(name = "cycles")

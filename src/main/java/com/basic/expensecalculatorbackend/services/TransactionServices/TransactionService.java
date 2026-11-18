@@ -1,6 +1,6 @@
 package com.basic.expensecalculatorbackend.services.TransactionServices;
 
-import com.basic.expensecalculatorbackend.data.entities.CyclesEntity;
+import com.basic.expensecalculatorbackend.data.model.entities.CyclesEntity;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;

@@ -1,9 +1,9 @@
 package com.basic.expensecalculatorbackend.mapper;
 
-import com.basic.expensecalculatorbackend.data.dtos.cycles.CycleHistoryResponse;
-import com.basic.expensecalculatorbackend.data.dtos.cycles.CycleResponse;
-import com.basic.expensecalculatorbackend.data.entities.CyclesEntity;
-import com.basic.expensecalculatorbackend.data.entities.PlanEntity;
+import com.basic.expensecalculatorbackend.data.model.dtos.cycles.CycleHistoryResponse;
+import com.basic.expensecalculatorbackend.data.model.dtos.cycles.CycleResponse;
+import com.basic.expensecalculatorbackend.data.model.entities.CyclesEntity;
+import com.basic.expensecalculatorbackend.data.model.entities.PlanEntity;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;

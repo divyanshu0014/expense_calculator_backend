@@ -1,4 +1,4 @@
-package com.basic.expensecalculatorbackend.data.dtos.cycles;
+package com.basic.expensecalculatorbackend.data.model.dtos.cycles;
 
 import lombok.Data;
 

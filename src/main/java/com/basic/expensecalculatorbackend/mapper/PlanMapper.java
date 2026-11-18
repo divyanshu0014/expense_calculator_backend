@@ -1,7 +1,7 @@
 package com.basic.expensecalculatorbackend.mapper;
 
-import com.basic.expensecalculatorbackend.data.entities.PlanEntity;
-import com.basic.expensecalculatorbackend.data.entities.UserProfileEntity;
+import com.basic.expensecalculatorbackend.data.model.entities.PlanEntity;
+import com.basic.expensecalculatorbackend.data.model.entities.UserProfileEntity;
 import com.basic.expensecalculatorbackend.data.enums.MotionEnum;
 import com.basic.expensecalculatorbackend.data.model.Plan;
 import org.springframework.stereotype.Component;

@@ -1,8 +1,9 @@
 package com.basic.expensecalculatorbackend.controller.cyclesController;
 
-import com.basic.expensecalculatorbackend.data.dtos.cycles.CycleHistoryResponse;
-import com.basic.expensecalculatorbackend.data.dtos.cycles.CycleResponse;
-import com.basic.expensecalculatorbackend.data.dtos.cycles.StartNewCyclesRequest;
+import com.basic.expensecalculatorbackend.data.model.dtos.cycles.CycleCreditRequest;
+import com.basic.expensecalculatorbackend.data.model.dtos.cycles.CycleHistoryResponse;
+import com.basic.expensecalculatorbackend.data.model.dtos.cycles.CycleResponse;
+import com.basic.expensecalculatorbackend.data.model.dtos.cycles.StartNewCyclesRequest;
 import com.basic.expensecalculatorbackend.services.CyclesServices.CyclesService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
@@ -26,7 +27,7 @@ public class CyclesController {
                                                         @Valid @RequestBody StartNewCyclesRequest cyclesRequest) {
         return new ResponseEntity<CycleResponse>(
                 cyclesService.startNewCycle(planId, cyclesRequest)
-                ,HttpStatus.CREATED
+                , HttpStatus.CREATED
         );
     }
 
@@ -48,7 +49,12 @@ public class CyclesController {
     }
 
 
-
-
-
+    @PutMapping(value = "/{cycleId}/credit")
+    public ResponseEntity<CycleResponse> credit(@PathVariable Long cycleId,
+                                                @RequestBody CycleCreditRequest creditRequest) {
+        return new ResponseEntity<CycleResponse>(
+                cyclesService.addCredits(cycleId, creditRequest),
+                HttpStatus.OK
+        );
+    }
 }

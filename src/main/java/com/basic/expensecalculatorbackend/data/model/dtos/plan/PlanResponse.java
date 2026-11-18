@@ -1,4 +1,4 @@
-package com.basic.expensecalculatorbackend.data.dtos.plan;
+package com.basic.expensecalculatorbackend.data.model.dtos.plan;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;

@@ -1,6 +1,6 @@
 package com.basic.expensecalculatorbackend.repositories;
 
-import com.basic.expensecalculatorbackend.data.entities.CyclesEntity;
+import com.basic.expensecalculatorbackend.data.model.entities.CyclesEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

@@ -1,4 +1,4 @@
-package com.basic.expensecalculatorbackend.data.entities;
+package com.basic.expensecalculatorbackend.data.model.entities;
 
 import com.basic.expensecalculatorbackend.data.enums.AllocationKindEnum;
 import jakarta.persistence.*;

@@ -1,4 +1,4 @@
-package com.basic.expensecalculatorbackend.data.dtos.profile;
+package com.basic.expensecalculatorbackend.data.model.dtos.profile;
 
 
 import lombok.*;

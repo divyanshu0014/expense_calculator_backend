@@ -1,4 +1,4 @@
-package com.basic.expensecalculatorbackend.data.dtos.cycles;
+package com.basic.expensecalculatorbackend.data.model.dtos.cycles;
 
 import com.basic.expensecalculatorbackend.data.enums.SourceEnum;
 import lombok.Builder;
